@@ -537,12 +537,13 @@ void solve(const struct instance_t *instance, struct context_t *ctx)
                 int option = active_options->p[k];
                 ctx->child_num[ctx->level] = k;
                 choose_option(instance, ctx, option, chosen_item);
+				#pragma omp task
                 solve(instance, ctx);
                 if (ctx->solutions >= max_solutions)
                         return;
                 unchoose_option(instance, ctx, option, chosen_item);
         }
-
+		#pragma omp taskwait
         uncover(instance, ctx, chosen_item);                      /* backtrack */
 }
 
