@@ -537,7 +537,7 @@ void solve(const struct instance_t *instance, struct context_t *ctx)
                 int option = active_options->p[k];
                 ctx->child_num[ctx->level] = k;
                 choose_option(instance, ctx, option, chosen_item);
-				#pragma omp task
+				#pragma omp task private(instance, ctx) final(true)
                 solve(instance, ctx);
                 if (ctx->solutions >= max_solutions)
                         return;
@@ -583,7 +583,10 @@ int main(int argc, char **argv)
         struct instance_t * instance = load_matrix(in_filename);
         struct context_t * ctx = backtracking_setup(instance);
         start = wtime();
+#pragma omp parallel
+ #pragma omp single nowait
         solve(instance, ctx);
+
         printf("FINI. Trouvé %lld solutions en %.1fs\n", ctx->solutions, 
                         wtime() - start);
         exit(EXIT_SUCCESS);
